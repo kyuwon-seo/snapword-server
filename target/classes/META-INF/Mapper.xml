@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.testServer.dao.Mapper">
+  
+	<select id="testList" resultType="com.testServer.domain.FoldVO">
+  		select * from quiz.folder
+  	</select>
+
+	<select id="loginUser" parameterType="Map" resultType="com.testServer.domain.UserVO">
+  		select * from quiz.user where user_id = #{user_id} and user_passwd = #{user_passwd}
+  	</select>
+  	
+  	<select id="foldList" parameterType="Map" resultType="com.testServer.domain.FoldVO">
+  		select folder_no,folder_name from quiz.folder where user_id = #{user_id}
+  	</select>
+  	
+  	<select id="searchFoldList" parameterType="Map" resultType="com.testServer.domain.FoldVO">
+  		select * from quiz.folder where folder_name like #{folder_name}
+  	</select>
+  	
+  	<select id="searchSetList" parameterType="String" resultType="com.testServer.domain.SetVO">
+  		select * from quiz.sets where set_name like #{set_name}
+  	</select>
+  	
+  	<select id="searchUserList" parameterType="String" resultType="com.testServer.domain.UserVO">
+  		select user_id from quiz.user where user_id like #{user_id}
+  	</select>
+  	
+  	<select id="setList" parameterType="int" resultType="com.testServer.domain.SetVO">
+  		select * from quiz.sets where folder_no = #{folder_no}
+  	</select>
+  	
+  	<select id="setAllList" parameterType="String" resultType="com.testServer.domain.SetVO">
+  		select * from quiz.sets where folder_no is null and user_id = #{user_id}
+  	</select>
+  	
+  	<select id="setAllReq" parameterType="String" resultType="com.testServer.domain.SetVO">
+  		select * from quiz.sets where user_id = #{user_id}
+  	</select>
+
+	<select id="getRoom" parameterType="int" resultType="com.testServer.domain.RoomVO">
+		select * from quiz.room where room_no=#{room_no}
+	</select>
+	
+	<insert id="foldMake" parameterType="com.testServer.domain.FoldVO">
+  		insert into quiz.folder (folder_name, user_id) values (#{folder_name},#{user_id})
+	</insert>
+	
+	<insert id="addRoom" parameterType="com.testServer.domain.RoomVO">
+  		insert into quiz.room (room_name, set_no, room_person, room_check, room_max, user_id) 
+  		values (#{room_name},#{set_no},#{room_person},#{room_check},#{room_max},#{user_id})
+	</insert>
+	
+	<update id="updateRoom" parameterType="com.testServer.domain.RoomVO">
+		update quiz.room set set_no=#{set_no} where room_no=#{room_no}
+	</update>
+	
+	<delete id="delRoom" parameterType="int">
+		delete from quiz.room where room_no = #{room_no}
+	</delete>
+	
+	<delete id="delSet" parameterType="int">
+		delete from quiz.sets where set_no = #{set_no}
+	</delete>
+	
+	<delete id="delFolder" parameterType="int">
+		delete from quiz.folder where folder_no = #{folder_no}
+	</delete>
+	
+	<update id="addPerson" parameterType="com.testServer.domain.RoomVO">
+		update quiz.room set room_person=#{room_person} where room_no=#{room_no}
+	</update>
+	
+	<update id="addCheck" parameterType="com.testServer.domain.RoomVO">
+		update quiz.room set room_check=#{room_check} where room_no=#{room_no}
+	</update>
+	
+	<select id="roomNo" parameterType="com.testServer.domain.RoomVO" resultType="int">
+		select room_no from quiz.room where room_name = #{room_name} and user_id = #{user_id}
+	</select>
+	
+	<select id="setInfo" parameterType="String" resultType="com.testServer.domain.SetVO">
+		select * from quiz.sets where set_name = #{set_name} and user_id = #{user_id}
+	</select>
+	
+	<select id="wordList" parameterType="int" resultType="com.testServer.domain.WordVO">
+		select * from quiz.words where set_no = #{set_no}
+	</select>
+	
+	<select id="roomList" resultType="com.testServer.domain.RoomVO">
+		select * from quiz.room
+	</select>
+	
+	<select id="wordcnt" parameterType="int">
+		update quiz.sets set word_cnt=(select count(case when set_no=#{set_no} then 1 end) from words) where set_no=#{set_no};
+	</select>
+	
+	<insert id="setMake" parameterType="com.testServer.domain.SetVO">
+		insert into quiz.sets (set_name, owner_id, user_id) values (#{set_name},#{user_id},#{user_id})
+	</insert>
+
+	<insert id="wordMake" parameterType="Map">
+		<if test="item.size != 0">
+			insert into quiz.words(
+			word_a,
+			word_b,
+			set_no,
+			img_name,
+			hint
+			)values
+			<foreach collection="item" item="item" separator=",">
+				(
+				#{item.wordA},
+				#{item.wordB},
+				#{set_no},
+				#{item.imgName},
+				#{item.hint}
+				)
+			</foreach>
+		</if>
+	</insert>
+	
+	<update id="addSet" parameterType="Map">
+		<if test="item.size != 0">
+			<foreach collection="item" item="item" separator=";">
+				update quiz.sets set folder_no=#{folder_no} where set_no=#{item.set_no}
+			</foreach>
+		</if>
+	</update>
+  
+</mapper>
